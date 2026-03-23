@@ -1,5 +1,6 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { retry } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
@@ -9,7 +10,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     const cloned = req.clone({
       headers: req.headers.set('Authorization', `Bearer ${token}`)
     });
-    return next(cloned);
+    return next(cloned).pipe(retry({ count: 2, delay: 1000 }));
   }
-  return next(req);
+  return next(req).pipe(retry({ count: 2, delay: 1000 }));
 };
