@@ -1,0 +1,121 @@
+<div class="container-fluid px-3">
+  <div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+      <h4><i class="bi bi-people me-2"></i>Jogadores</h4>
+      <p class="mb-0 opacity-75">Gerencie os membros do time</p>
+    </div>
+    <button class="btn btn-light" (click)="openForm()">
+      <i class="bi bi-person-plus me-2"></i>Novo Jogador
+    </button>
+  </div>
+
+  <!-- Formulário -->
+  <div class="card section-card mb-4" *ngIf="showForm">
+    <div class="card-header bg-white border-0 py-3">
+      <h6 class="mb-0 fw-bold">
+        <i class="bi bi-pencil-square me-2"></i>
+        {{ editingId ? 'Editar Jogador' : 'Novo Jogador' }}
+      </h6>
+    </div>
+    <div class="card-body">
+      <form (ngSubmit)="save()">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Nome do Jogador</label>
+            <input type="text" class="form-control" [(ngModel)]="form.name" name="name"
+                   placeholder="Ex: João Silva" required>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Mensalidade (R$)</label>
+            <div class="input-group">
+              <span class="input-group-text">R$</span>
+              <input type="number" class="form-control" [(ngModel)]="form.monthlyFee" name="monthlyFee"
+                     placeholder="0,00" min="0" step="0.01" required>
+            </div>
+          </div>
+          <div class="col-md-2 d-flex align-items-end gap-2">
+            <button type="submit" class="btn btn-verde flex-fill">
+              <i class="bi bi-check2 me-1"></i>Salvar
+            </button>
+            <button type="button" class="btn btn-outline-secondary" (click)="cancelForm()">
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Lista -->
+  <div class="card section-card">
+    <div class="card-body p-0">
+      <div *ngIf="loading" class="spinner-overlay">
+        <div class="spinner-border text-success"></div>
+      </div>
+
+      <div *ngIf="!loading && players.length === 0" class="text-center py-5 text-muted">
+        <i class="bi bi-person-x" style="font-size:2.5rem;"></i>
+        <p class="mt-2">Nenhum jogador cadastrado.</p>
+        <button class="btn btn-verde" (click)="openForm()">
+          <i class="bi bi-person-plus me-1"></i>Cadastrar primeiro jogador
+        </button>
+      </div>
+
+      <div class="table-responsive" *ngIf="!loading && players.length > 0">
+        <table class="table table-hover mb-0">
+          <thead style="background:#f8f9fa;">
+            <tr>
+              <th class="ps-4">#</th>
+              <th>Nome</th>
+              <th class="text-center">Mensalidade</th>
+              <th class="text-center">Status</th>
+              <th class="text-center">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let player of players; let i = index"
+                [class.table-secondary]="!player.active" [class.opacity-75]="!player.active">
+              <td class="ps-4 text-muted">{{ i + 1 }}</td>
+              <td class="fw-semibold">
+                <i class="bi bi-person-circle me-2"
+                   [class.text-success]="player.active"
+                   [class.text-muted]="!player.active"></i>
+                {{ player.name }}
+              </td>
+              <td class="text-center">
+                <span class="badge px-3 py-2"
+                      [class.bg-success]="player.active"
+                      [class.bg-secondary]="!player.active">
+                  R$ {{ player.monthlyFee | number:'1.2-2' }}
+                </span>
+              </td>
+              <td class="text-center">
+                <span class="badge px-3 py-2"
+                      [class.bg-success]="player.active"
+                      [class.bg-secondary]="!player.active">
+                  <i class="bi me-1" [class.bi-check-circle]="player.active" [class.bi-dash-circle]="!player.active"></i>
+                  {{ player.active ? 'Ativo' : 'Inativo' }}
+                </span>
+              </td>
+              <td class="text-center">
+                <button class="btn btn-sm btn-outline-secondary me-1" (click)="openForm(player)" title="Editar">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-sm me-1"
+                        [class.btn-outline-warning]="player.active"
+                        [class.btn-outline-success]="!player.active"
+                        (click)="toggleActive(player)"
+                        [title]="player.active ? 'Desativar' : 'Reativar'">
+                  <i class="bi" [class.bi-toggle-on]="player.active" [class.bi-toggle-off]="!player.active"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" (click)="delete(player.id!)" title="Excluir">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

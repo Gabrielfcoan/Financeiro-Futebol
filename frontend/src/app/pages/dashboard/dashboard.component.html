@@ -1,0 +1,117 @@
+<div class="container-fluid px-3">
+  <!-- Loading -->
+  <div *ngIf="loading" class="spinner-overlay">
+    <div class="spinner-border text-success" style="width:3rem;height:3rem;"></div>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <ng-container *ngIf="!loading && dashboard">
+    <!-- Header -->
+    <div class="page-header d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h4><i class="bi bi-speedometer2 me-2"></i>Dashboard Financeiro</h4>
+        <p class="mb-0 opacity-75">Resumo de {{ getMonthName(dashboard.currentMonth) }}/{{ dashboard.currentYear }}</p>
+      </div>
+      <div *ngIf="authService.isLoggedIn()" class="d-flex gap-2">
+        <a routerLink="/payments" class="btn btn-light btn-sm">
+          <i class="bi bi-calendar-check me-1"></i>Mensalidades
+        </a>
+        <a routerLink="/transactions" class="btn btn-outline-light btn-sm">
+          <i class="bi bi-plus-circle me-1"></i>Lançamento
+        </a>
+      </div>
+    </div>
+
+    <!-- Cards de totais -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-4">
+        <div class="card card-receita card-dashboard">
+          <div class="card-body p-4">
+            <p class="card-title mb-1"><i class="bi bi-arrow-up-circle me-1"></i>Total Receita</p>
+            <div class="valor">R$ {{ dashboard.totalIncome | number:'1.2-2' }}</div>
+            <small class="opacity-75">Acumulado {{ dashboard.currentYear }}</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card card-despesa card-dashboard">
+          <div class="card-body p-4">
+            <p class="card-title mb-1"><i class="bi bi-arrow-down-circle me-1"></i>Total Despesa</p>
+            <div class="valor">R$ {{ dashboard.totalExpense | number:'1.2-2' }}</div>
+            <small class="opacity-75">Acumulado {{ dashboard.currentYear }}</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card card-saldo card-dashboard">
+          <div class="card-body p-4">
+            <p class="card-title mb-1"><i class="bi bi-wallet2 me-1"></i>Saldo</p>
+            <div class="valor">R$ {{ dashboard.balance | number:'1.2-2' }}</div>
+            <small class="opacity-75">Receita - Despesa</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagamentos do mês corrente -->
+    <div class="card section-card">
+      <div class="card-header bg-white py-3 border-0">
+        <div class="d-flex justify-content-between align-items-center">
+          <h5 class="mb-0 fw-bold">
+            <i class="bi bi-people me-2 text-success"></i>
+            Mensalidades — {{ getMonthName(dashboard.currentMonth) }}/{{ dashboard.currentYear }}
+          </h5>
+          <div class="d-flex gap-2">
+            <span class="badge bg-success px-3 py-2">
+              <i class="bi bi-check-circle me-1"></i>{{ paidCount() }} pagos
+            </span>
+            <span class="badge bg-danger px-3 py-2">
+              <i class="bi bi-clock me-1"></i>{{ pendingCount() }} pendentes
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="card-body p-0">
+        <div *ngIf="dashboard.currentMonthPayments.length === 0" class="text-center py-5 text-muted">
+          <i class="bi bi-inbox" style="font-size:2rem;"></i>
+          <p class="mt-2">Nenhum jogador cadastrado ainda.</p>
+          <a *ngIf="authService.isLoggedIn()" routerLink="/players" class="btn btn-verde btn-sm">
+            Cadastrar jogadores
+          </a>
+        </div>
+
+        <div class="table-responsive" *ngIf="dashboard.currentMonthPayments.length > 0">
+          <table class="table table-hover mb-0">
+            <thead style="background:#f8f9fa;">
+              <tr>
+                <th class="ps-4">Jogador</th>
+                <th class="text-center">Valor</th>
+                <th class="text-center">Status</th>
+                <th class="text-center">Data Pagamento</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let player of dashboard.currentMonthPayments">
+                <td class="ps-4 fw-semibold">
+                  <i class="bi bi-person-circle me-2 text-muted"></i>{{ player.playerName }}
+                </td>
+                <td class="text-center">R$ {{ player.amount | number:'1.2-2' }}</td>
+                <td class="text-center">
+                  <span class="badge px-3 py-2" [class]="player.paid ? 'badge-pago' : 'badge-pendente'">
+                    <i class="bi me-1" [class]="player.paid ? 'bi-check-circle' : 'bi-clock'"></i>
+                    {{ player.paid ? 'Pago' : 'Pendente' }}
+                  </span>
+                </td>
+                <td class="text-center text-muted">
+                  {{ player.paidAt ? (player.paidAt | date:'dd/MM/yyyy') : '—' }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>
