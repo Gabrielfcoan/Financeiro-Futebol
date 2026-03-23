@@ -7,6 +7,7 @@ import com.futebol.entity.TransactionType;
 import com.futebol.repository.MonthlyPaymentRepository;
 import com.futebol.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -24,6 +25,7 @@ public class DashboardService {
         this.transactionRepository = transactionRepository;
     }
 
+    @Transactional(readOnly = true)
     public DashboardDTO getDashboard() {
         int currentYear = LocalDate.now().getYear();
         int currentMonth = LocalDate.now().getMonthValue();
